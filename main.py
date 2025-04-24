@@ -78,7 +78,7 @@ def raspar_tweets_furia(quantidade=3):
 def enviar_atualizacoes():
     # Envia atualizações automáticas
     try:
-        chat_id = "7092763342"  # Chat ID (Telegram)
+        chat_id = "xxxxxxxxx"  # Chat ID (Telegram)
         tweets = raspar_tweets_furia(3)
         
         if tweets:
