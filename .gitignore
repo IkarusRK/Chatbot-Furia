@@ -1,0 +1,4 @@
+# Arquivos ignorados pelo Git
+.env
+__pycache__/
+*.pyc
