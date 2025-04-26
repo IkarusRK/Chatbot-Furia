@@ -3,6 +3,8 @@ Retirei a API Key (BEARER_TOKEN) Do Twitter por motivos de segurança.
 E retirei a API Key do bot também (mesmo motivo)
 :) 
 
+Não sou tão bom comentando no codigo, então as vezes pedi pra Claude.ai comentar no codigo no meu lugar. :p
+
 
 Erros de autenticação OAuth:
 
