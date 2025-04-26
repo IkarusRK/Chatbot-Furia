@@ -16,7 +16,7 @@ if missing_vars:
     error_msg = (
         "🚨 Variáveis de ambiente obrigatórias faltando:\n"
         + "\n".join(f"- {var}" for var in missing_vars)
-        + "\n\nℹ️ Adicione-as no arquivo .env"
+        + "\n\n Adicione no arquivo .env"
     )
     raise ValueError(error_msg)
 
@@ -33,10 +33,12 @@ def log_erro(mensagem_erro):
     print(f"ERRO: {mensagem_erro}")
 
 def verificar_twitch():
-    """Verifica se a FURIA está ao vivo na Twitch"""
+    """Verifica se a FURIA está ao vivo na Twitch."""
     try:
         client_id = os.getenv("TWITCH_CLIENT_ID")
         client_secret = os.getenv("TWITCH_CLIENT_SECRET")
+        
+        print(f"Verificando Twitch com Client ID: {client_id[:5]}...")
         
         # Obter token de acesso
         auth_url = "https://id.twitch.tv/oauth2/token"
@@ -49,8 +51,13 @@ def verificar_twitch():
         auth_response = requests.post(auth_url, params=auth_params)
         auth_data = auth_response.json()
         
+        print(f"Auth response status: {auth_response.status_code}")
+        print(f"Auth data: {auth_data}")
+        
         if 'access_token' not in auth_data:
-            return "🔴 Não foi possível verificar o status da Twitch"
+            error_msg = auth_data.get('message', 'Sem mensagem de erro')
+            print(f"Erro na autenticação: {error_msg}")
+            return f"🔴 Não foi possível verificar o status da Twitch: {error_msg}"
         
         access_token = auth_data['access_token']
         
@@ -63,8 +70,16 @@ def verificar_twitch():
         stream_url = "https://api.twitch.tv/helix/streams"
         params = {'user_login': 'furiatv'}
         
+        print("Enviando requisição para API de streams...")
         response = requests.get(stream_url, headers=headers, params=params)
+        print(f"Stream response status: {response.status_code}")
+        
+        if response.status_code != 200:
+            print(f"Erro na API de streams: {response.text}")
+            return f"🔴 Erro ao acessar API da Twitch (Status {response.status_code})"
+        
         data = response.json()
+        print(f"Stream data: {data}")
         
         if data.get('data'):
             stream = data['data'][0]
@@ -78,7 +93,9 @@ def verificar_twitch():
     
     except Exception as e:
         log_erro(f"Erro ao verificar Twitch: {str(e)}")
-        return "⚠️ Erro ao verificar status da Twitch"
+        import traceback
+        print(f"Stacktrace: {traceback.format_exc()}")
+        return f"⚠️ Erro ao verificar status da Twitch: {str(e)}"
 
 def raspar_tweets_furia(quantidade=3):
     """Raspa os últimos tweets da FURIA com tratamento de Markdown"""
@@ -108,7 +125,7 @@ def raspar_tweets_furia(quantidade=3):
                     data = tag_data['title'] if tag_data else ""
                     tweet_link = f"https://twitter.com{tag_data['href']}" if tag_data else ""
                     
-                    # 4. Tratar mídia
+                    # 4. Tratar mídia. As vezes o bot falha.
                     media_link = ""
                     media_tag = tweet.select_one('.attachment.video, .attachment.image')
                     if media_tag and media_tag.has_attr('href'):
